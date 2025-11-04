@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from db.query_tool import query_company_db
 import uvicorn
+import os
 
 app = FastAPI(title="Company REST API Connector")
 API_KEY = os.getenv("API_KEY")
