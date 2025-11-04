@@ -31,8 +31,10 @@ def query_db(request: QueryRequest):
         result = query_company_db(sql)
         return {"status": "success", "rows": len(result), "results": result}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Return sanitized error to client but include detail for logs
+        raise HTTPException(status_code=500, detail="Internal server error. Check logs for details.")
 
 if __name__ == "__main__":
+    # Use the Heroku-provided PORT when available
     port = int(os.environ.get("PORT", 8080))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
