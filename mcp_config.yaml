@@ -1,0 +1,27 @@
+name: company-mcp
+description: >
+  FastMCP connector exposing the 'company' schema in PostgreSQL for read-only access.
+
+resources:
+  - name: company_db
+    type: sql
+    engine: postgresql
+    connection:
+      host: ${DB_HOST}
+      port: ${DB_PORT}
+      database: ${DB_NAME}
+      user: ${DB_USER}
+      password: ${DB_PASSWORD}
+      sslmode: ${DB_SSLMODE}
+    schemas:
+      - company
+
+permissions:
+  - role: company_user
+    schemas: [company]
+    access: read
+
+tools:
+  - name: query_company_db
+    description: Run read-only SQL SELECT queries on the company schema.
+    entrypoint: db.query_tool:query_company_db
