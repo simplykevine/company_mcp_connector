@@ -3,6 +3,11 @@ from pydantic import BaseModel
 from db.query_tool import query_company_db
 import uvicorn
 import os
+import traceback
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Company REST API Connector")
 API_KEY = os.getenv("API_KEY")
@@ -31,10 +36,13 @@ def query_db(request: QueryRequest):
         result = query_company_db(sql)
         return {"status": "success", "rows": len(result), "results": result}
     except Exception as e:
-        # Return sanitized error to client but include detail for logs
-        raise HTTPException(status_code=500, detail="Internal server error. Check logs for details.")
+        # Debug: log full traceback to stdout/stderr (visible in heroku logs)
+        tb = traceback.format_exc()
+        logger.error("Exception in /query: %s\n%s", str(e), tb)
+        # Return the exception message and traceback in the response temporarily
+        # WARNING: This can leak sensitive info. Remove after debugging.
+        raise HTTPException(status_code=500, detail={"error": str(e), "traceback": tb})
 
 if __name__ == "__main__":
-    # Use the Heroku-provided PORT when available
     port = int(os.environ.get("PORT", 8080))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
